@@ -13,12 +13,6 @@ const db = mysql.createConnection(
     }
 )
 
-// db.connect((err) => {
-//  if(err) {
-//     console.log(err)
-//  }
-// })
-
 db.promise().query(
     `SELECT e.id, e.first_name, e.last_name, title, salary, CONCAT(m.first_name, ' ',  m.last_name) AS manager 
     FROM employees AS e 
