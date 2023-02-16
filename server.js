@@ -141,7 +141,7 @@ function addEmployee() {
 
 function updateEmployee() {
     db.promise().query(
-        `SELECT id, CONCAT(first_name, ' ',  last_name) AS name FROM employees`
+        `SELECT id, CONCAT(first_name, ' ',  last_name) AS name, role_id FROM employees`
         ).then(data => {
             const employeesList = data[0].map(row => {
                 return {
@@ -149,16 +149,39 @@ function updateEmployee() {
                     value: row.id
                 }
             })
-            inquirer.prompt({
-                type: 'list',
-                name: 'emp',
-                mesage: 'Which Employee would you like to update?',
-                choices: employeesList
-            }).then(data => {
-                
+            db.promise().query(
+                `SELECT id, title FROM roles`
+                ).then(data => {
+                const rolesList = data[0].map(row => {
+                    return {
+                        name: row.title,
+                        value: row.id
+                    }
+                })
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'emp',
+                        mesage: 'Which Employee would you like to update?',
+                        choices: employeesList
+                    },
+                    {
+                        type: 'list',
+                        name: 'role',
+                        message: 'Which role do you want to assign the selected employee?',
+                        choices: rolesList
+                    }
+                ]).then(data => {
+                    db.promise().query(
+                        `UPDATE employees SET role_id = ${data.role} WHERE id = ${data.emp}`
+                        ).then(data => {
+                        console.log('Employee Updated!')
+                        mainMenu();
+                    })
             })
-        }
-)}
+        })    
+    })
+}
 
 
 function viewRoles() {
